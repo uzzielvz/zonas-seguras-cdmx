@@ -36,7 +36,21 @@ export default function SafetyZonesLayer({
   const map = useMap()
 
   useEffect(() => {
-    if (!enabled || delitos.length === 0) {
+    // Si está deshabilitado, remover todas las capas de zonas de seguridad
+    if (!enabled) {
+      map.eachLayer((layer: any) => {
+        if (layer instanceof L.Rectangle && layer.options.fillColor) {
+          // Verificar si es una zona de seguridad por el color
+          const colors = ['#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444']
+          if (colors.includes(layer.options.fillColor)) {
+            map.removeLayer(layer)
+          }
+        }
+      })
+      return
+    }
+
+    if (delitos.length === 0) {
       return
     }
 

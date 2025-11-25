@@ -69,19 +69,19 @@ export default function MapView({
         <MapController />
         <CdmxBoundary />
         <ReportMarkers reportes={reportes} onDeleteReport={onDeleteReport} />
-        {filtros?.mostrarCalor && heatmapData.length > 0 && (
+        {filtros?.mostrarCalor === true && heatmapData.length > 0 && (
           <HeatmapLayer 
             data={heatmapData} 
-            enabled={filtros.mostrarCalor}
+            enabled={true}
             radius={20}
             blur={12}
             intensidad={calorIntensidad || 50}
           />
         )}
-        {filtros?.mostrarZonasSeguridad && delitos.length > 0 && (
+        {filtros?.mostrarZonasSeguridad === true && delitos.length > 0 && (
           <SafetyZonesLayer 
             delitos={delitos}
-            enabled={filtros.mostrarZonasSeguridad}
+            enabled={true}
             gridSize={0.01} // ~1km
           />
         )}

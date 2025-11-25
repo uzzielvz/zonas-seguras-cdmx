@@ -42,11 +42,18 @@ export default function HeatmapLayer({
   const map = useMap()
 
   useEffect(() => {
+    let heatLayer: any = null
+
+    // Si está deshabilitado o no hay datos, remover la capa si existe
     if (!enabled || data.length === 0) {
+      // Buscar y remover cualquier capa de calor existente
+      map.eachLayer((layer: any) => {
+        if (layer._heat && layer._heat._latlngs) {
+          map.removeLayer(layer)
+        }
+      })
       return
     }
-
-    let heatLayer: any = null
 
     const initHeatmap = async () => {
       await loadHeatPlugin()
@@ -56,6 +63,13 @@ export default function HeatmapLayer({
         console.error('❌ leaflet.heat no está disponible después de cargar')
         return
       }
+
+      // Remover cualquier capa de calor anterior
+      map.eachLayer((layer: any) => {
+        if (layer._heat && layer._heat._latlngs) {
+          map.removeLayer(layer)
+        }
+      })
 
       console.log('🔥 Creando mapa de calor con', data.length, 'puntos')
 
@@ -85,12 +99,27 @@ export default function HeatmapLayer({
     initHeatmap()
 
     return () => {
+      // Cleanup: remover la capa cuando el componente se desmonte o cambien las dependencias
       if (heatLayer) {
-        map.removeLayer(heatLayer)
-        console.log('🗑️ Mapa de calor removido')
+        try {
+          map.removeLayer(heatLayer)
+          console.log('🗑️ Mapa de calor removido')
+        } catch (e) {
+          // La capa ya fue removida
+        }
       }
+      // También buscar y remover cualquier otra capa de calor
+      map.eachLayer((layer: any) => {
+        if (layer._heat && layer._heat._latlngs) {
+          try {
+            map.removeLayer(layer)
+          } catch (e) {
+            // Ignorar errores
+          }
+        }
+      })
     }
-  }, [map, data, enabled, radius, blur, maxZoom, max, minOpacity])
+  }, [map, data, enabled, radius, blur, maxZoom, max, minOpacity, intensidad])
 
   return null
 }

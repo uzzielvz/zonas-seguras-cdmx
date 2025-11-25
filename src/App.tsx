@@ -19,7 +19,7 @@ function App() {
     tiposDelito: ['homicidio', 'asalto', 'robo'],
     mostrarAcoso: true,
     mostrarOtro: true,
-    mostrarCalor: true,
+    mostrarCalor: false, // Desactivado por defecto
     mostrarBuffers: false,
     mostrarReportes: true,
     alcaldia: undefined,
@@ -28,7 +28,7 @@ function App() {
     calorIntensidad: 50, // Intensidad media por defecto
     calorSoloZonasCriticas: false,
     calorMuestreo: true, // Activar muestreo por defecto para mejor rendimiento
-    mostrarZonasSeguridad: true, // Mostrar zonas de seguridad por defecto
+    mostrarZonasSeguridad: false, // Desactivado por defecto
   })
 
   // Cargar reportes al iniciar
