@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import CdmxBoundary from './CdmxBoundary'
+import CdmxBackgroundLayer from './CdmxBackgroundLayer'
 import ReportMarkers from './ReportMarkers'
 import MapClickHandler from './MapClickHandler'
 import HeatmapLayer from './HeatmapLayer'
@@ -68,6 +69,14 @@ export default function MapView({
         
         <MapController />
         <CdmxBoundary />
+        {/* Mostrar zonas sin datos cuando el mapa de calor está activo */}
+        {filtros?.mostrarCalor === true && (
+          <CdmxBackgroundLayer 
+            delitos={delitos}
+            enabled={true}
+            gridSize={0.01} // ~1km
+          />
+        )}
         <ReportMarkers reportes={reportes} onDeleteReport={onDeleteReport} />
         {filtros?.mostrarCalor === true && heatmapData.length > 0 && (
           <HeatmapLayer 
