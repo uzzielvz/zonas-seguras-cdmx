@@ -2,21 +2,15 @@ import { useEffect } from 'react'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import CdmxBoundary from './CdmxBoundary'
 
 // Fix para iconos de Leaflet en React
-import icon from 'leaflet/dist/images/marker-icon.png'
-import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-
-const DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
+delete (L.Icon.Default.prototype as any)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
-
-L.Marker.prototype.options.icon = DefaultIcon
 
 // Coordenadas de CDMX (centro)
 const CDMX_CENTER: [number, number] = [19.4326, -99.1332]
@@ -48,6 +42,7 @@ export default function MapView() {
         />
         
         <MapController />
+        <CdmxBoundary />
         
         {/* Aquí se agregarán las capas de calor, buffers y marcadores */}
       </MapContainer>
