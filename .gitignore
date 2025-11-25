@@ -23,3 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# Datos grandes (CSV originales)
+data/*.csv
+data/da_carpetas-de-investigacion-pgj-cdmx*.csv
+
+# GeoJSON generado (opcional - descomenta si no quieres subirlo)
+# data/delitos-cdmx.geojson

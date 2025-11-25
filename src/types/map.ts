@@ -49,5 +49,11 @@ export interface FiltrosMapa {
   fechaInicio?: string
   fechaFin?: string
   radio?: number // Radio en metros para búsqueda
+  // Controles del mapa de calor
+  calorIntensidad?: number // 0-100
+  calorSoloZonasCriticas?: boolean // Solo mostrar áreas de alta densidad
+  calorMuestreo?: boolean // Reducir puntos para mejor rendimiento
+  // Zonas de seguridad
+  mostrarZonasSeguridad?: boolean // Mostrar clasificación de zonas (verde/rojo)
 }
 

@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar/Sidebar'
 import ReportForm from './components/ReportForm/ReportForm'
 import { ReporteCiudadano, Coordinates, FiltrosMapa, TipoDelito } from './types/map'
 import { guardarReporte, obtenerReportes, eliminarReporte } from './utils/reportes'
+import { useDelitosData } from './hooks/useDelitosData'
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -24,12 +25,38 @@ function App() {
     alcaldia: undefined,
     fechaInicio: undefined,
     fechaFin: undefined,
+    calorIntensidad: 50, // Intensidad media por defecto
+    calorSoloZonasCriticas: false,
+    calorMuestreo: true, // Activar muestreo por defecto para mejor rendimiento
+    mostrarZonasSeguridad: true, // Mostrar zonas de seguridad por defecto
   })
 
   // Cargar reportes al iniciar
   useEffect(() => {
     setReportes(obtenerReportes())
   }, [])
+
+  // Cargar datos de delitos oficiales
+  const { delitos, loading: delitosLoading, filtrarDelitos, getHeatmapData } = useDelitosData()
+
+  // Filtrar delitos según los filtros activos
+  const delitosFiltrados = useMemo(() => {
+    if (!delitos.length) return []
+    return filtrarDelitos(filtros)
+  }, [delitos, filtros, filtrarDelitos])
+
+  // Obtener datos para el mapa de calor
+  const heatmapData = useMemo(() => {
+    if (!filtros.mostrarCalor || delitosFiltrados.length === 0) {
+      return []
+    }
+    const data = getHeatmapData(
+      delitosFiltrados,
+      filtros.calorSoloZonasCriticas || false,
+      filtros.calorMuestreo !== false // true por defecto
+    )
+    return data
+  }, [delitosFiltrados, filtros.mostrarCalor, filtros.calorSoloZonasCriticas, filtros.calorMuestreo, getHeatmapData])
 
   // Filtrar reportes según los filtros activos
   const reportesFiltrados = useMemo(() => {
@@ -150,6 +177,10 @@ function App() {
             onMapClick={handleMapClick}
             mapClickEnabled={reportFormOpen || mapSelectionMode}
             onDeleteReport={handleDeleteReport}
+            filtros={filtros}
+            heatmapData={heatmapData}
+            calorIntensidad={filtros.calorIntensidad || 50}
+            delitos={filtros.mostrarZonasSeguridad ? delitosFiltrados : []}
           />
           
           {/* Indicador de modo de selección */}

@@ -121,15 +121,59 @@ export default function Sidebar({ isOpen, onClose, filtros, onFiltrosChange, est
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Capas del Mapa</h3>
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
-                    checked={filtros.mostrarCalor}
-                    onChange={(e) => handleCapaChange('mostrarCalor', e.target.checked)}
-                  />
-                  <span className="text-sm text-gray-700">Mapa de Calor</span>
-                </label>
+                <div>
+                  <label className="flex items-center space-x-2 cursor-pointer mb-2">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                      checked={filtros.mostrarCalor}
+                      onChange={(e) => handleCapaChange('mostrarCalor', e.target.checked)}
+                    />
+                    <span className="text-sm text-gray-700">Mapa de Calor</span>
+                  </label>
+                  
+                  {/* Controles del mapa de calor */}
+                  {filtros.mostrarCalor && (
+                    <div className="ml-6 space-y-3 mt-2 p-3 bg-gray-50 rounded-lg">
+                      {/* Intensidad */}
+                      <div>
+                        <label className="block text-xs text-gray-600 mb-1">
+                          Intensidad: {filtros.calorIntensidad || 50}%
+                        </label>
+                        <input
+                          type="range"
+                          min="10"
+                          max="100"
+                          value={filtros.calorIntensidad || 50}
+                          onChange={(e) => onFiltrosChange({ ...filtros, calorIntensidad: parseInt(e.target.value) })}
+                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                      </div>
+                      
+                      {/* Solo zonas críticas */}
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-3 h-3 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                          checked={filtros.calorSoloZonasCriticas || false}
+                          onChange={(e) => onFiltrosChange({ ...filtros, calorSoloZonasCriticas: e.target.checked })}
+                        />
+                        <span className="text-xs text-gray-700">Solo zonas críticas</span>
+                      </label>
+                      
+                      {/* Muestreo */}
+                      <label className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="w-3 h-3 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                          checked={filtros.calorMuestreo !== false}
+                          onChange={(e) => onFiltrosChange({ ...filtros, calorMuestreo: e.target.checked })}
+                        />
+                        <span className="text-xs text-gray-700">Optimizar rendimiento</span>
+                      </label>
+                    </div>
+                  )}
+                </div>
                 <label className="flex items-center space-x-2 cursor-pointer">
                   <input
                     type="checkbox"
@@ -147,6 +191,15 @@ export default function Sidebar({ isOpen, onClose, filtros, onFiltrosChange, est
                     onChange={(e) => handleCapaChange('mostrarReportes', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Reportes Ciudadanos</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                    checked={filtros.mostrarZonasSeguridad !== false}
+                    onChange={(e) => onFiltrosChange({ ...filtros, mostrarZonasSeguridad: e.target.checked })}
+                  />
+                  <span className="text-sm text-gray-700">Zonas de Seguridad</span>
                 </label>
               </div>
             </div>

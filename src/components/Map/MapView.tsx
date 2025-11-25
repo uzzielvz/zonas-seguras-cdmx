@@ -5,7 +5,9 @@ import L from 'leaflet'
 import CdmxBoundary from './CdmxBoundary'
 import ReportMarkers from './ReportMarkers'
 import MapClickHandler from './MapClickHandler'
-import { ReporteCiudadano, Coordinates } from '../../types/map'
+import HeatmapLayer from './HeatmapLayer'
+import SafetyZonesLayer from './SafetyZonesLayer'
+import { ReporteCiudadano, Coordinates, FiltrosMapa, Delito } from '../../types/map'
 
 // Fix para iconos de Leaflet en React
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -35,9 +37,22 @@ interface MapViewProps {
   onMapClick?: (coords: Coordinates) => void
   mapClickEnabled?: boolean
   onDeleteReport?: (id: string) => void
+  filtros?: FiltrosMapa
+  heatmapData?: Array<[number, number, number]>
+  calorIntensidad?: number
+  delitos?: Delito[]
 }
 
-export default function MapView({ reportes, onMapClick, mapClickEnabled = false, onDeleteReport }: MapViewProps) {
+export default function MapView({ 
+  reportes, 
+  onMapClick, 
+  mapClickEnabled = false, 
+  onDeleteReport,
+  filtros,
+  heatmapData = [],
+  calorIntensidad = 50,
+  delitos = []
+}: MapViewProps) {
   return (
     <div className="h-full w-full relative">
       <MapContainer
@@ -54,9 +69,25 @@ export default function MapView({ reportes, onMapClick, mapClickEnabled = false,
         <MapController />
         <CdmxBoundary />
         <ReportMarkers reportes={reportes} onDeleteReport={onDeleteReport} />
+        {filtros?.mostrarCalor && heatmapData.length > 0 && (
+          <HeatmapLayer 
+            data={heatmapData} 
+            enabled={filtros.mostrarCalor}
+            radius={20}
+            blur={12}
+            intensidad={calorIntensidad || 50}
+          />
+        )}
+        {filtros?.mostrarZonasSeguridad && delitos.length > 0 && (
+          <SafetyZonesLayer 
+            delitos={delitos}
+            enabled={filtros.mostrarZonasSeguridad}
+            gridSize={0.01} // ~1km
+          />
+        )}
         {onMapClick && <MapClickHandler onMapClick={onMapClick} enabled={mapClickEnabled} />}
         
-        {/* Aquí se agregarán las capas de calor, buffers y marcadores */}
+        {/* Aquí se agregarán los buffers de riesgo */}
       </MapContainer>
       
       {/* Controles flotantes */}
