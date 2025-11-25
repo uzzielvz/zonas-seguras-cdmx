@@ -1,0 +1,609 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+% Configuración de código
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green},
+  breaklines=true,
+  frame=single
+}
+
+% Información del documento
+\title{ZonaSegura CDMX}
+\subtitle{Mapa Colaborativo de Seguridad Ciudadana}
+\author{Proyecto de Sistemas de Información Geográfica}
+\date{\today}
+
+\begin{document}
+
+% Portada
+\frame{\titlepage}
+
+% Tabla de contenidos
+\begin{frame}{Contenido}
+  \tableofcontents
+\end{frame}
+
+% ============================================
+% SECCIÓN 1: INTRODUCCIÓN
+% ============================================
+\section{Introducción}
+
+\begin{frame}{¿Qué es ZonaSegura CDMX?}
+  \begin{itemize}
+    \item \textbf{Aplicación web interactiva} que combina:
+    \begin{itemize}
+      \item Datos oficiales de delitos de la Fiscalía General de Justicia CDMX
+      \item Reportes en tiempo real de ciudadanos
+    \end{itemize}
+    \item \textbf{Objetivo}: Visualizar de manera clara y rápida:
+    \begin{itemize}
+      \item Dónde están ocurriendo los delitos
+      \item Zonas de mayor riesgo
+      \item Cambios en la seguridad por colonia
+    \end{itemize}
+    \item \textbf{Enfoque}: Robos, asaltos y homicidios (para visitantes)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Datos del Proyecto}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Datos Oficiales}
+      \begin{itemize}
+        \item \textbf{808,871} registros totales
+        \item \textbf{777,535} con coordenadas válidas (96.1\%)
+        \item \textbf{55,561} delitos filtrados (robos/asaltos/homicidios desde 2019)
+        \item Rango: 2019 - 2019
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Desglose por Tipo}
+      \begin{itemize}
+        \item \textbf{15,761} Robos
+        \item \textbf{39,060} Asaltos
+        \item \textbf{740} Homicidios
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  
+  \vspace{0.5cm}
+  \begin{alertblock}{Fuente}
+    Fiscalía General de Justicia de la Ciudad de México (FGJ-CDMX)
+  \end{alertblock}
+\end{frame}
+
+% ============================================
+% SECCIÓN 2: ARQUITECTURA
+% ============================================
+\section{Arquitectura del Sistema}
+
+\begin{frame}{Arquitectura General}
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{../diagrams/arquitectura.png}
+  \end{center}
+  
+  \begin{description}
+    \item[Frontend] React + TypeScript + Vite
+    \item[Visualización] Leaflet.js + react-leaflet
+    \item[Análisis Geoespacial] Turf.js
+    \item[Almacenamiento] LocalStorage (demo)
+  \end{description}
+\end{frame}
+
+\begin{frame}{Stack Tecnológico}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Frontend}
+      \begin{itemize}
+        \item \textbf{React 18.2} - Framework UI
+        \item \textbf{TypeScript 5.2} - Tipado estático
+        \item \textbf{Vite 5.0} - Build tool
+        \item \textbf{Tailwind CSS 3.3} - Estilos
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Librerías Geoespaciales}
+      \begin{itemize}
+        \item \textbf{Leaflet 1.9} - Mapas
+        \item \textbf{react-leaflet 4.2} - Integración React
+        \item \textbf{leaflet.heat 0.2} - Mapas de calor
+        \item \textbf{Turf.js 6.5} - Análisis geoespacial
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Estructura de Componentes}
+  \begin{block}{Organización Modular}
+    \begin{itemize}
+      \item \texttt{src/components/Map/} - Componentes del mapa
+      \begin{itemize}
+        \item MapView.tsx - Contenedor principal
+        \item HeatmapLayer.tsx - Mapa de calor
+        \item SafetyZonesLayer.tsx - Zonas de seguridad
+        \item ReportMarkers.tsx - Marcadores de reportes
+      \end{itemize}
+      \item \texttt{src/components/ReportForm/} - Formulario de reportes
+      \item \texttt{src/components/Sidebar/} - Panel de filtros
+      \item \texttt{src/hooks/} - Custom hooks (useDelitosData)
+      \item \texttt{src/utils/} - Utilidades (reportes.ts)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+% ============================================
+% SECCIÓN 3: PROCESO DE DESARROLLO
+% ============================================
+\section{Proceso de Desarrollo}
+
+\begin{frame}{Fases del Desarrollo}
+  \begin{enumerate}
+    \item \textbf{Análisis de Datos}
+    \begin{itemize}
+      \item Procesamiento del CSV (808k+ registros)
+      \item Validación de coordenadas
+      \item Clasificación de delitos
+    \end{itemize}
+    
+    \item \textbf{Configuración del Proyecto}
+    \begin{itemize}
+      \item Setup React + TypeScript + Vite
+      \item Integración de Leaflet
+      \item Configuración de Tailwind CSS
+    \end{itemize}
+    
+    \item \textbf{Visualización Base}
+    \begin{itemize}
+      \item Mapa de CDMX con límites exactos
+      \item Sistema de coordenadas
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Fases del Desarrollo (Cont.)}
+  \begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Sistema de Reportes}
+    \begin{itemize}
+      \item Formulario de captura
+      \item Almacenamiento en LocalStorage
+      \item Marcadores personalizados por tipo
+    \end{itemize}
+    
+    \item \textbf{Mapa de Calor}
+    \begin{itemize}
+      \item Conversión CSV → GeoJSON
+      \item Implementación con leaflet.heat
+      \item Controles de intensidad
+    \end{itemize}
+    
+    \item \textbf{Zonas de Seguridad}
+    \begin{itemize}
+      \item Algoritmo de clasificación
+      \item Grid de celdas (1km²)
+      \item Sistema de colores (verde/rojo)
+    \end{itemize}
+  \end{enumerate}
+\end{frame}
+
+% ============================================
+% SECCIÓN 4: FUNCIONALIDADES
+% ============================================
+\section{Funcionalidades}
+
+\begin{frame}{Características Principales}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Visualización}
+      \begin{itemize}
+        \item Mapa de calor interactivo
+        \item Zonas de seguridad (verde/rojo)
+        \item Marcadores de reportes ciudadanos
+        \item Límites exactos de CDMX
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Reportes Ciudadanos}
+      \begin{itemize}
+        \item Captura rápida (< 10 seg)
+        \item Geolocalización o clic en mapa
+        \item Tipos: robo, asalto, homicidio, acoso, otro
+        \item Foto opcional
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  
+  \vspace{0.5cm}
+  \begin{block}{Filtros Avanzados}
+    \begin{itemize}
+      \item Por tipo de delito
+      \item Por fecha (últimos 30 días)
+      \item Por alcaldía
+      \item Toggle de capas (calor, buffers, reportes)
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Algoritmo de Zonas de Seguridad}
+  \begin{block}{Proceso de Clasificación}
+    \begin{enumerate}
+      \item \textbf{División en Grid}: CDMX dividida en celdas de 1km²
+      \item \textbf{Conteo de Delitos}: Contar delitos por celda
+      \item \textbf{Cálculo de Densidad}: Delitos/km²
+      \item \textbf{Clasificación}:
+      \begin{itemize}
+        \item Verde: 0 delitos (muy seguro)
+        \item Verde claro: < 5 delitos/km² (seguro)
+        \item Amarillo: 5-15 delitos/km² (moderado)
+        \item Naranja: 15-30 delitos/km² (peligroso)
+        \item Rojo: > 30 delitos/km² (muy peligroso)
+      \end{itemize}
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Mapa de Calor}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Características}
+      \begin{itemize}
+        \item 55,561 puntos de datos
+        \item Gradiente de colores:
+        \begin{itemize}
+          \item Azul → Baja intensidad
+          \item Amarillo → Media intensidad
+          \item Rojo → Alta intensidad
+        \end{itemize}
+        \item Controles ajustables:
+        \begin{itemize}
+          \item Intensidad (10-100\%)
+          \item Solo zonas críticas
+          \item Optimización de rendimiento
+        \end{itemize}
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Optimizaciones}
+      \begin{itemize}
+        \item Muestreo automático (>10k puntos)
+        \item Filtrado por tipo de delito
+        \item Filtrado por fecha
+        \item Renderizado dinámico
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+% ============================================
+% SECCIÓN 5: HERRAMIENTAS Y TECNOLOGÍAS
+% ============================================
+\section{Herramientas y Tecnologías}
+
+\begin{frame}{Herramientas de Desarrollo}
+  \begin{block}{Entorno de Desarrollo}
+    \begin{itemize}
+      \item \textbf{VS Code} - Editor de código
+      \item \textbf{Node.js} - Runtime de JavaScript
+      \item \textbf{npm} - Gestor de paquetes
+      \item \textbf{Git} - Control de versiones
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Build y Deploy}
+    \begin{itemize}
+      \item \textbf{Vite} - Build tool rápido
+      \item \textbf{TypeScript} - Compilador
+      \item \textbf{ESLint} - Linter
+      \item \textbf{PostCSS + Autoprefixer} - Procesamiento CSS
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Procesamiento de Datos}
+  \begin{block}{Scripts Python}
+    \begin{itemize}
+      \item \texttt{csv\_to\_geojson.py} - Conversión de datos
+      \begin{itemize}
+        \item Filtrado por tipo (robos/asaltos/homicidios)
+        \item Validación de coordenadas
+        \item Clasificación de delitos graves
+        \item Generación de GeoJSON
+      \end{itemize}
+      \item Scripts de análisis:
+      \begin{itemize}
+        \item Análisis de estructura del CSV
+        \item Estadísticas por tipo de delito
+        \item Validación de coordenadas
+      \end{itemize}
+    \end{itemize}
+  \end{block}
+  
+  \begin{alertblock}{Resultado}
+    CSV (808k registros, >200MB) → GeoJSON (55k delitos, 30MB)
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Librerías Geoespaciales}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Leaflet.js}
+      \begin{itemize}
+        \item Biblioteca de mapas open-source
+        \item Ligera y rápida
+        \item Compatible con móviles
+        \item Plugins extensibles
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Turf.js}
+      \begin{itemize}
+        \item Análisis geoespacial en JavaScript
+        \item Operaciones: buffers, unions, convex hull
+        \item Cálculos de distancia
+        \item Validación de geometrías
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  
+  \vspace{0.5cm}
+  \begin{block}{leaflet.heat}
+    Plugin para visualización de mapas de calor basado en densidad de puntos
+  \end{block}
+\end{frame}
+
+% ============================================
+% SECCIÓN 6: UTILIDAD Y FUNCIONAMIENTO
+% ============================================
+\section{Utilidad y Funcionamiento}
+
+\begin{frame}{Casos de Uso}
+  \begin{block}{Para Visitantes}
+    \begin{itemize}
+      \item Identificar zonas seguras antes de visitar
+      \item Evitar áreas de alto riesgo
+      \item Planificar rutas seguras
+      \item Consultar seguridad en tiempo real
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Para Ciudadanos}
+    \begin{itemize}
+      \item Reportar incidentes rápidamente
+      \item Contribuir a la seguridad colectiva
+      \item Monitorear cambios en su colonia
+      \item Comparar datos oficiales vs. reportes ciudadanos
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Para Autoridades}
+    \begin{itemize}
+      \item Visualizar patrones de delincuencia
+      \item Identificar zonas críticas
+      \item Validar reportes ciudadanos
+      \item Análisis de tendencias
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Flujo de Datos}
+  \begin{block}{Datos Oficiales}
+    \begin{enumerate}
+      \item CSV de la Fiscalía (808k registros)
+      \item Procesamiento con Python
+      \item Filtrado y validación
+      \item Conversión a GeoJSON (55k delitos)
+      \item Carga en el frontend
+      \item Visualización en el mapa
+    \end{enumerate}
+  \end{block}
+  
+  \begin{block}{Reportes Ciudadanos}
+    \begin{enumerate}
+      \item Usuario completa formulario
+      \item Captura de ubicación (GPS o clic)
+      \item Almacenamiento en LocalStorage
+      \item Renderizado inmediato en mapa
+      \item Marcador con icono según tipo
+    \end{enumerate}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Sistema de Filtros}
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{Filtros de Datos}
+      \begin{itemize}
+        \item \textbf{Tipo de delito}:
+        \begin{itemize}
+          \item Homicidios
+          \item Asaltos
+          \item Robos
+          \item Acoso
+          \item Otro
+        \end{itemize}
+        \item \textbf{Fecha}: Últimos 30 días (por defecto)
+        \item \textbf{Alcaldía}: Filtro por municipio
+      \end{itemize}
+    \end{block}
+    
+    \column{0.5\textwidth}
+    \begin{block}{Filtros de Visualización}
+      \begin{itemize}
+        \item \textbf{Mapa de Calor}: On/Off
+        \begin{itemize}
+          \item Intensidad (10-100\%)
+          \item Solo zonas críticas
+          \item Optimización
+        \end{itemize}
+        \item \textbf{Zonas de Seguridad}: On/Off
+        \item \textbf{Reportes Ciudadanos}: On/Off
+        \item \textbf{Buffers de Riesgo}: On/Off (futuro)
+      \end{itemize}
+    \end{block}
+  \end{columns}
+\end{frame}
+
+% ============================================
+% SECCIÓN 7: ASPECTOS TÉCNICOS
+% ============================================
+\section{Aspectos Técnicos}
+
+\begin{frame}{Optimizaciones Implementadas}
+  \begin{block}{Rendimiento}
+    \begin{itemize}
+      \item \textbf{Muestreo}: Reducción de puntos para mapas de calor (>10k)
+      \item \textbf{Lazy Loading}: Carga de datos bajo demanda
+      \item \textbf{Memoria}: Limpieza de capas al desactivar
+      \item \textbf{Renderizado}: Actualización solo cuando es necesario
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Experiencia de Usuario}
+    \begin{itemize}
+      \item \textbf{Feedback Visual}: Animaciones y transiciones
+      \item \textbf{Responsive}: Adaptable a móviles
+      \item \textbf{Accesibilidad}: Tooltips informativos
+      \item \textbf{Validación}: Formularios con validación en tiempo real
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Manejo de Datos Geoespaciales}
+  \begin{block}{Validación de Coordenadas}
+    \begin{itemize}
+      \item Rango de CDMX: Lat 19.0-19.7, Lng -99.4 a -98.9
+      \item Eliminación de coordenadas inválidas (0,0)
+      \item Validación de formato GeoJSON
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Operaciones Geoespaciales}
+    \begin{itemize}
+      \item \textbf{Unión de polígonos}: Límites de CDMX
+      \item \textbf{Grid de celdas}: Zonas de seguridad
+      \item \textbf{Cálculo de densidad}: Delitos por km²
+      \item \textbf{Buffers}: Futuro para zonas de riesgo
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Ejemplo de Código: Hook de Datos}
+\begin{lstlisting}[language=JavaScript]
+export function useDelitosData() {
+  const [delitos, setDelitos] = useState<Delito[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadDelitos = async () => {
+      const response = await fetch('/data/delitos-cdmx.geojson')
+      const data = await response.json()
+      
+      const delitosConvertidos = data.features.map((feature) => ({
+        id: `delito-${index}`,
+        tipo: props.tipo as TipoDelito,
+        coordenadas: [coords[1], coords[0]],
+        // ... más propiedades
+      }))
+      
+      setDelitos(delitosConvertidos)
+    }
+    loadDelitos()
+  }, [])
+
+  return { delitos, loading, filtrarDelitos, getHeatmapData }
+}
+\end{lstlisting}
+\end{frame}
+
+% ============================================
+% SECCIÓN 8: CONCLUSIONES Y FUTURO
+% ============================================
+\section{Conclusiones}
+
+\begin{frame}{Logros del Proyecto}
+  \begin{block}{Técnicos}
+    \begin{itemize}
+      \item Procesamiento exitoso de 808k+ registros
+      \item Visualización eficiente de 55k+ puntos
+      \item Sistema modular y escalable
+      \item Integración de múltiples tecnologías geoespaciales
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Funcionales}
+    \begin{itemize}
+      \item Mapa de calor interactivo
+      \item Sistema de clasificación de zonas
+      \item Reportes ciudadanos funcionales
+      \item Filtros avanzados operativos
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Mejoras Futuras}
+  \begin{block}{Corto Plazo}
+    \begin{itemize}
+      \item Implementar buffers de riesgo (150m)
+      \item Backend para reportes (actualmente LocalStorage)
+      \item Sistema de verificación de reportes
+      \item Exportación de datos
+    \end{itemize}
+  \end{block}
+  
+  \begin{block}{Largo Plazo}
+    \begin{itemize}
+      \item API para datos en tiempo real
+      \item Machine Learning para predicción
+      \item App móvil nativa
+      \item Integración con otras fuentes de datos
+      \item Sistema de alertas por proximidad
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Impacto Social}
+  \begin{block}{Beneficios}
+    \begin{itemize}
+      \item \textbf{Transparencia}: Datos oficiales accesibles
+      \item \textbf{Empoderamiento}: Ciudadanos informados
+      \item \textbf{Colaboración}: Reportes ciudadanos
+      \item \textbf{Prevención}: Identificación de zonas de riesgo
+    \end{itemize}
+  \end{block}
+  
+  \begin{alertblock}{Objetivo Final}
+    Crear una herramienta que ayude a ciudadanos y visitantes a tomar decisiones informadas sobre seguridad en la Ciudad de México
+  \end{alertblock}
+\end{frame}
+
+% ============================================
+% FINAL
+% ============================================
+\begin{frame}{Preguntas}
+  \begin{center}
+    \Huge ¿Preguntas?
+    
+    \vspace{1cm}
+    
+    \Large Gracias por su atención
+  \end{center}
+\end{frame}
+
+\end{document}
+
