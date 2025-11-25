@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Header from './components/Header/Header'
 import MapView from './components/Map/MapView'
 import Sidebar from './components/Sidebar/Sidebar'
 import ReportForm from './components/ReportForm/ReportForm'
-import { ReporteCiudadano, Coordinates } from './types/map'
+import { ReporteCiudadano, Coordinates, FiltrosMapa, TipoDelito } from './types/map'
 import { guardarReporte, obtenerReportes, eliminarReporte } from './utils/reportes'
 
 function App() {
@@ -12,11 +12,81 @@ function App() {
   const [mapSelectionMode, setMapSelectionMode] = useState(false)
   const [reportes, setReportes] = useState<ReporteCiudadano[]>([])
   const [selectedCoords, setSelectedCoords] = useState<Coordinates | undefined>()
+  
+  // Estado de filtros
+  const [filtros, setFiltros] = useState<FiltrosMapa>({
+    tiposDelito: ['homicidio', 'asalto', 'robo'],
+    mostrarAcoso: true,
+    mostrarOtro: true,
+    mostrarCalor: true,
+    mostrarBuffers: false,
+    mostrarReportes: true,
+    alcaldia: undefined,
+    fechaInicio: undefined,
+    fechaFin: undefined,
+  })
 
   // Cargar reportes al iniciar
   useEffect(() => {
     setReportes(obtenerReportes())
   }, [])
+
+  // Filtrar reportes según los filtros activos
+  const reportesFiltrados = useMemo(() => {
+    return reportes.filter((reporte) => {
+      // Filtrar por tipo de delito
+      const tipoReporte = reporte.tipo
+      
+      if (tipoReporte === 'acoso') {
+        if (!filtros.mostrarAcoso) return false
+      } else if (tipoReporte === 'otro') {
+        if (!filtros.mostrarOtro) return false
+      } else if (!filtros.tiposDelito.includes(tipoReporte as TipoDelito)) {
+        return false
+      }
+
+      // Filtrar por mostrar reportes
+      if (!filtros.mostrarReportes) {
+        return false
+      }
+
+      // Filtrar por fecha (últimos 30 días si no hay fecha específica)
+      const fechaReporte = new Date(reporte.fecha)
+      const ahora = new Date()
+      
+      // Si hay fecha fin, usar esa; si no, usar ahora (mostrar todos hasta hoy)
+      const fechaFin = filtros.fechaFin 
+        ? new Date(filtros.fechaFin)
+        : ahora
+      
+      // Si hay fecha inicio, filtrar por ella; si no, mostrar últimos 30 días por defecto
+      const fechaInicio = filtros.fechaInicio
+        ? new Date(filtros.fechaInicio)
+        : new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000) // Últimos 30 días por defecto
+      
+      // El reporte debe estar entre fechaInicio y fechaFin
+      if (fechaReporte < fechaInicio) return false
+      if (fechaReporte > fechaFin) return false
+
+      return true
+    })
+  }, [reportes, filtros])
+
+  // Calcular estadísticas
+  const estadisticas = useMemo(() => {
+    const ahora = new Date()
+    const hace30Dias = new Date(ahora.getTime() - 30 * 24 * 60 * 60 * 1000)
+    
+    const reportesUltimos30Dias = reportesFiltrados.filter((r) => {
+      const fecha = new Date(r.fecha)
+      return fecha >= hace30Dias
+    })
+
+    return {
+      total: reportesFiltrados.length,
+      ultimos30Dias: reportesUltimos30Dias.length,
+    }
+  }, [reportesFiltrados])
 
   const handleReportSubmit = (reporte: ReporteCiudadano) => {
     guardarReporte(reporte)
@@ -68,12 +138,15 @@ function App() {
       <div className="flex-1 flex relative overflow-hidden">
         <Sidebar 
           isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)} 
+          onClose={() => setSidebarOpen(false)}
+          filtros={filtros}
+          onFiltrosChange={setFiltros}
+          estadisticas={estadisticas}
         />
         
         <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'md:ml-80' : 'ml-0'}`}>
           <MapView 
-            reportes={reportes}
+            reportes={filtros.mostrarReportes ? reportesFiltrados : []}
             onMapClick={handleMapClick}
             mapClickEnabled={reportFormOpen || mapSelectionMode}
             onDeleteReport={handleDeleteReport}

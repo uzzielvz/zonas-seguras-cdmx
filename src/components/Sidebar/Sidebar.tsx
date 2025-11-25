@@ -1,11 +1,33 @@
 import { XMarkIcon, FunnelIcon, ChartBarIcon } from '@heroicons/react/24/outline'
+import { FiltrosMapa, TipoDelito } from '../../types/map'
 
 interface SidebarProps {
   isOpen: boolean
   onClose: () => void
+  filtros: FiltrosMapa
+  onFiltrosChange: (filtros: FiltrosMapa) => void
+  estadisticas: {
+    total: number
+    ultimos30Dias: number
+  }
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, filtros, onFiltrosChange, estadisticas }: SidebarProps) {
+  
+  const handleTipoDelitoChange = (tipo: TipoDelito, checked: boolean) => {
+    const nuevosTipos = checked
+      ? [...filtros.tiposDelito, tipo]
+      : filtros.tiposDelito.filter((t) => t !== tipo)
+    onFiltrosChange({ ...filtros, tiposDelito: nuevosTipos })
+  }
+
+  const handleCapaChange = (capa: 'mostrarCalor' | 'mostrarBuffers' | 'mostrarReportes', checked: boolean) => {
+    onFiltrosChange({ ...filtros, [capa]: checked })
+  }
+
+  const handleAlcaldiaChange = (alcaldia: string) => {
+    onFiltrosChange({ ...filtros, alcaldia: alcaldia || undefined })
+  }
   return (
     <>
       {/* Overlay para móvil */}
@@ -51,7 +73,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
-                    defaultChecked
+                    checked={filtros.tiposDelito.includes('homicidio')}
+                    onChange={(e) => handleTipoDelitoChange('homicidio', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Homicidios</span>
                 </label>
@@ -59,7 +82,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-orange-600 rounded border-gray-300 focus:ring-orange-500"
-                    defaultChecked
+                    checked={filtros.tiposDelito.includes('asalto')}
+                    onChange={(e) => handleTipoDelitoChange('asalto', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Asaltos</span>
                 </label>
@@ -67,9 +91,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                    defaultChecked
+                    checked={filtros.tiposDelito.includes('robo')}
+                    onChange={(e) => handleTipoDelitoChange('robo', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Robos</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-purple-600 rounded border-gray-300 focus:ring-purple-500"
+                    checked={filtros.mostrarAcoso}
+                    onChange={(e) => onFiltrosChange({ ...filtros, mostrarAcoso: e.target.checked })}
+                  />
+                  <span className="text-sm text-gray-700">Acoso</span>
+                </label>
+                <label className="flex items-center space-x-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 text-gray-600 rounded border-gray-300 focus:ring-gray-500"
+                    checked={filtros.mostrarOtro}
+                    onChange={(e) => onFiltrosChange({ ...filtros, mostrarOtro: e.target.checked })}
+                  />
+                  <span className="text-sm text-gray-700">Otro</span>
                 </label>
               </div>
             </div>
@@ -82,7 +125,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
-                    defaultChecked
+                    checked={filtros.mostrarCalor}
+                    onChange={(e) => handleCapaChange('mostrarCalor', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Mapa de Calor</span>
                 </label>
@@ -90,6 +134,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500"
+                    checked={filtros.mostrarBuffers}
+                    onChange={(e) => handleCapaChange('mostrarBuffers', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Buffers de Riesgo</span>
                 </label>
@@ -97,7 +143,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   <input
                     type="checkbox"
                     className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                    defaultChecked
+                    checked={filtros.mostrarReportes}
+                    onChange={(e) => handleCapaChange('mostrarReportes', e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">Reportes Ciudadanos</span>
                 </label>
@@ -112,12 +159,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               </h3>
               <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                 <div>
-                  <p className="text-xs text-gray-500">Delitos visibles</p>
-                  <p className="text-2xl font-bold text-gray-900">0</p>
+                  <p className="text-xs text-gray-500">Reportes visibles</p>
+                  <p className="text-2xl font-bold text-gray-900">{estadisticas.total}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Últimos 30 días</p>
-                  <p className="text-2xl font-bold text-red-600">0</p>
+                  <p className="text-2xl font-bold text-red-600">{estadisticas.ultimos30Dias}</p>
                 </div>
               </div>
             </div>
@@ -125,7 +172,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             {/* Alcaldías */}
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-3">Alcaldía</h3>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <select 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                value={filtros.alcaldia || ''}
+                onChange={(e) => handleAlcaldiaChange(e.target.value)}
+              >
                 <option value="">Todas las alcaldías</option>
                 <option value="cuauhtemoc">Cuauhtémoc</option>
                 <option value="iztapalapa">Iztapalapa</option>

@@ -40,6 +40,8 @@ export interface ReporteCiudadano {
 // Filtros del mapa
 export interface FiltrosMapa {
   tiposDelito: TipoDelito[]
+  mostrarAcoso: boolean
+  mostrarOtro: boolean
   mostrarCalor: boolean
   mostrarBuffers: boolean
   mostrarReportes: boolean
