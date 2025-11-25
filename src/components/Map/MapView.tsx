@@ -3,6 +3,9 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import CdmxBoundary from './CdmxBoundary'
+import ReportMarkers from './ReportMarkers'
+import MapClickHandler from './MapClickHandler'
+import { ReporteCiudadano, Coordinates } from '../../types/map'
 
 // Fix para iconos de Leaflet en React
 delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -27,7 +30,14 @@ function MapController() {
   return null
 }
 
-export default function MapView() {
+interface MapViewProps {
+  reportes: ReporteCiudadano[]
+  onMapClick?: (coords: Coordinates) => void
+  mapClickEnabled?: boolean
+  onDeleteReport?: (id: string) => void
+}
+
+export default function MapView({ reportes, onMapClick, mapClickEnabled = false, onDeleteReport }: MapViewProps) {
   return (
     <div className="h-full w-full relative">
       <MapContainer
@@ -43,6 +53,8 @@ export default function MapView() {
         
         <MapController />
         <CdmxBoundary />
+        <ReportMarkers reportes={reportes} onDeleteReport={onDeleteReport} />
+        {onMapClick && <MapClickHandler onMapClick={onMapClick} enabled={mapClickEnabled} />}
         
         {/* Aquí se agregarán las capas de calor, buffers y marcadores */}
       </MapContainer>

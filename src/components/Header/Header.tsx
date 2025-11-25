@@ -3,9 +3,10 @@ import { Bars3Icon, MapPinIcon } from '@heroicons/react/24/outline'
 interface HeaderProps {
   onMenuClick: () => void
   sidebarOpen: boolean
+  onReportClick: () => void
 }
 
-export default function Header({ onMenuClick, sidebarOpen }: HeaderProps) {
+export default function Header({ onMenuClick, sidebarOpen, onReportClick }: HeaderProps) {
   return (
     <header className="bg-white shadow-md z-10 border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8">
@@ -31,7 +32,10 @@ export default function Header({ onMenuClick, sidebarOpen }: HeaderProps) {
 
           {/* Acciones */}
           <div className="flex items-center space-x-4">
-            <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium">
+            <button
+              onClick={onReportClick}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+            >
               Reportar Incidente
             </button>
           </div>
