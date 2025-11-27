@@ -1,16 +1,15 @@
 import { useEffect } from 'react'
 import { MapContainer, TileLayer, useMap } from 'react-leaflet'
+import { FireIcon, ShieldExclamationIcon, MapPinIcon } from '@heroicons/react/24/outline'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import CdmxBoundary from './CdmxBoundary'
-import CdmxBackgroundLayer from './CdmxBackgroundLayer'
 import ReportMarkers from './ReportMarkers'
 import MapClickHandler from './MapClickHandler'
 import HeatmapLayer from './HeatmapLayer'
 import SafetyZonesLayer from './SafetyZonesLayer'
 import { ReporteCiudadano, Coordinates, FiltrosMapa, Delito } from '../../types/map'
 
-// Fix para iconos de Leaflet en React
 delete (L.Icon.Default.prototype as any)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -18,7 +17,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-// Coordenadas de CDMX (centro)
 const CDMX_CENTER: [number, number] = [19.4326, -99.1332]
 const DEFAULT_ZOOM = 11
 
@@ -26,7 +24,6 @@ function MapController() {
   const map = useMap()
 
   useEffect(() => {
-    // Centrar en CDMX al cargar
     map.setView(CDMX_CENTER, DEFAULT_ZOOM)
   }, [map])
 
@@ -37,6 +34,7 @@ interface MapViewProps {
   reportes: ReporteCiudadano[]
   onMapClick?: (coords: Coordinates) => void
   mapClickEnabled?: boolean
+  mapSelectionMode?: boolean
   onDeleteReport?: (id: string) => void
   filtros?: FiltrosMapa
   heatmapData?: Array<[number, number, number]>
@@ -44,10 +42,26 @@ interface MapViewProps {
   delitos?: Delito[]
 }
 
+function SelectionZoomController({ enabled }: { enabled: boolean }) {
+  const map = useMap()
+  
+  useEffect(() => {
+    if (enabled) {
+      const currentZoom = map.getZoom()
+      if (currentZoom < 15) {
+        map.setZoom(15, { animate: true, duration: 0.5 })
+      }
+    }
+  }, [enabled, map])
+  
+  return null
+}
+
 export default function MapView({ 
   reportes, 
   onMapClick, 
-  mapClickEnabled = false, 
+  mapClickEnabled = false,
+  mapSelectionMode = false,
   onDeleteReport,
   filtros,
   heatmapData = [],
@@ -68,15 +82,8 @@ export default function MapView({
         />
         
         <MapController />
+        {mapSelectionMode && <SelectionZoomController enabled={mapSelectionMode} />}
         <CdmxBoundary />
-        {/* Mostrar zonas sin datos cuando el mapa de calor está activo */}
-        {filtros?.mostrarCalor === true && (
-          <CdmxBackgroundLayer 
-            delitos={delitos}
-            enabled={true}
-            gridSize={0.01} // ~1km
-          />
-        )}
         <ReportMarkers reportes={reportes} onDeleteReport={onDeleteReport} />
         {filtros?.mostrarCalor === true && heatmapData.length > 0 && (
           <HeatmapLayer 
@@ -91,24 +98,30 @@ export default function MapView({
           <SafetyZonesLayer 
             delitos={delitos}
             enabled={true}
-            gridSize={0.01} // ~1km
+            gridSize={0.01}
           />
         )}
         {onMapClick && <MapClickHandler onMapClick={onMapClick} enabled={mapClickEnabled} />}
-        
-        {/* Aquí se agregarán los buffers de riesgo */}
       </MapContainer>
       
-      {/* Controles flotantes */}
-      <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-lg p-2 space-y-2">
-        <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-          Mapa de Calor
+      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+        <button 
+          className="w-10 h-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center hover:bg-white"
+          title="Mapa de calor"
+        >
+          <FireIcon className="w-5 h-5 text-gray-700" />
         </button>
-        <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-          Buffers de Riesgo
+        <button 
+          className="w-10 h-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center hover:bg-white"
+          title="Zonas de riesgo"
+        >
+          <ShieldExclamationIcon className="w-5 h-5 text-gray-700" />
         </button>
-        <button className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded transition-colors">
-          Mi Ubicación
+        <button 
+          className="w-10 h-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center hover:bg-white"
+          title="Mi ubicación"
+        >
+          <MapPinIcon className="w-5 h-5 text-gray-700" />
         </button>
       </div>
     </div>

@@ -76,7 +76,7 @@ export default function HeatmapLayer({
       // Ajustar opacidad según intensidad (0-100 -> 0.1-0.8)
       const opacity = minOpacity + (intensidad / 100) * (0.7 - minOpacity)
       
-      // Crear capa de calor con gradiente más detallado (10 niveles)
+      // Crear capa de calor con parámetros ajustados
       heatLayer = (L as any).heatLayer(data, {
         radius: radius * (intensidad / 50), // Ajustar radio según intensidad
         blur: blur * (intensidad / 50),
@@ -84,18 +84,11 @@ export default function HeatmapLayer({
         max,
         minOpacity: opacity,
         gradient: {
-          // Gradiente más detallado con 10 niveles de clasificación
-          0.0: 'rgba(0, 100, 0, 0)',           // Verde muy oscuro (muy seguro) - transparente
-          0.1: 'rgba(0, 150, 0, 0.2)',         // Verde (seguro)
-          0.2: 'rgba(100, 200, 100, 0.3)',     // Verde claro (relativamente seguro)
-          0.3: 'rgba(150, 220, 150, 0.4)',     // Verde muy claro (bajo riesgo)
-          0.4: 'rgba(173, 216, 230, 0.5)',     // Azul claro (riesgo bajo-medio)
-          0.5: 'rgba(255, 255, 0, 0.6)',       // Amarillo (riesgo medio)
-          0.6: 'rgba(255, 200, 0, 0.7)',      // Amarillo-naranja (riesgo medio-alto)
-          0.7: 'rgba(255, 140, 0, 0.75)',     // Naranja (riesgo alto)
-          0.85: 'rgba(255, 69, 0, 0.8)',      // Naranja-rojo (muy alto riesgo)
-          0.95: 'rgba(255, 0, 0, 0.85)',      // Rojo (extremadamente peligroso)
-          1.0: 'rgba(139, 0, 0, 0.9)',        // Rojo oscuro (zona crítica)
+          0.0: 'rgba(0, 0, 255, 0)',      // Azul transparente
+          0.3: 'rgba(0, 255, 255, 0.3)',  // Cyan
+          0.5: 'rgba(255, 255, 0, 0.5)',  // Amarillo
+          0.7: 'rgba(255, 165, 0, 0.7)',  // Naranja
+          1.0: 'rgba(255, 0, 0, 0.9)',   // Rojo intenso
         },
       })
 

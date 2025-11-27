@@ -176,6 +176,7 @@ function App() {
             reportes={filtros.mostrarReportes ? reportesFiltrados : []}
             onMapClick={handleMapClick}
             mapClickEnabled={reportFormOpen || mapSelectionMode}
+            mapSelectionMode={mapSelectionMode}
             onDeleteReport={handleDeleteReport}
             filtros={filtros}
             heatmapData={heatmapData}
